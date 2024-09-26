@@ -1,8 +1,8 @@
-import 'package:community_app/auth/ui/SignUpPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/ThemeNotifier.dart';
+import 'home/ui/HomeScreen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +20,7 @@ class MyApp extends ConsumerWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeNotifier.currentTheme,
-      home: SignUpPage(),
+      home: HomeScreen(),
     );
   }
 }
