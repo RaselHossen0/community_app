@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/ThemeNotifier.dart';
-import 'home/ui/HomeScreen.dart';
+import 'auth/ui/SignUpScreen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,10 +17,11 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: themeNotifier.currentTheme,
-      home: HomeScreen(),
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: Colors.black,
+        appBarTheme: AppBarTheme(color: Colors.black),
+      ),
+      home: SignUpScreen(),
     );
   }
 }
