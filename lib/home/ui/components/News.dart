@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'Newsdetails.dart'; // Make sure this import points to the correct location of your NewsDetails widget
 
 class News extends StatelessWidget {
   final Color readTimeColor = Color(0xFF92C9FF);
@@ -48,13 +49,15 @@ class News extends StatelessWidget {
                       'assets/images/image1.png',
                       '5 min read',
                       '9 OCT',
+                      context,
                     ),
                     SizedBox(width: 16),
                     _buildHorizontalNewsCard(
                       'The Cons Taxes: Ur',
-                      'assets/images/image1.png',
+                      'assets/images/image2.png',
                       '5 min read',
                       '9 OCT',
+                      context,
                     ),
                     // Add more horizontal cards as needed
                   ],
@@ -83,18 +86,21 @@ class News extends StatelessWidget {
                       'assets/images/image3.png',
                       '5 min read',
                       '9 OCT',
+                      context,
                     ),
                     _buildSmallNewsCard(
                       'Why Estate Taxes Are So Controversial: Examining t...',
                       'assets/images/image4.png',
                       '5 min read',
                       '9 OCT',
+                      context,
                     ),
                     _buildSmallNewsCard(
                       'How Tax Credits Help Low-Income Families: An Exami...',
                       'assets/images/image5.png',
                       '5 min read',
                       '9 OCT',
+                      context,
                     ),
                   ],
                 ),
@@ -117,17 +123,80 @@ class News extends StatelessWidget {
     );
   }
 
-  Widget _buildHorizontalNewsCard(String title, String imagePath, String readTime, String date) {
-    return Container(
-      width: 300,
-      child: Card(
-        color: Colors.grey[900],
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildHorizontalNewsCard(String title, String imagePath, String readTime, String date, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => NewsDetails(
+              title: title,
+              imagePath: imagePath,
+              readTime: readTime,
+              date: date,
+              content: 'This is a placeholder for the full news content. In a real app, you would fetch this content from your data source.',
+            ),
+          ),
+        );
+      },
+      child: Container(
+        width: 300,
+        child: Card(
+          color: Colors.grey[900],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Image.asset(imagePath, fit: BoxFit.cover, height: 200),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                    SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(readTime, style: TextStyle(color: readTimeColor)),
+                        Text(date, style: TextStyle(color: Colors.grey)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSmallNewsCard(String title, String imagePath, String readTime, String date, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => NewsDetails(
+              title: title,
+              imagePath: imagePath,
+              readTime: readTime,
+              date: date,
+              content: 'This is a placeholder for the full news content. In a real app, you would fetch this content from your data source.',
+            ),
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Row(
           children: [
-            Image.asset(imagePath, fit: BoxFit.cover, height: 200),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(imagePath, width: 100, height: 100, fit: BoxFit.cover),
+            ),
+            SizedBox(width: 16),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -145,37 +214,6 @@ class News extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSmallNewsCard(String title, String imagePath, String readTime, String date) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.asset(imagePath, width: 100, height: 100, fit: BoxFit.cover),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(readTime, style: TextStyle(color: readTimeColor)),
-                    Text(date, style: TextStyle(color: Colors.grey)),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
