@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';  // Import for SVG support
+import 'components/PersonalInfo.dart';
+import 'components/TermsAndServices.dart';
+import 'components/PrivacyPolicy.dart';
+import 'components/ContactInfoScreen.dart';
 
 class UserProfile extends StatelessWidget {
   @override
@@ -27,7 +31,12 @@ class UserProfile extends StatelessWidget {
               _buildSettingsSection(
                 context,
                 items: [
-                  _buildSettingItem('assets/icons/personalInfo.svg', "Personal Information", onTap: () {}),
+                  _buildSettingItem('assets/icons/personalInfo.svg', "Personal Information", onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => PersonalInfo()),
+                    );
+                  }),
                   _buildDivider(),
                   _buildSettingItem('assets/icons/AccountDetails.svg', "Account Details", onTap: () {}),
                   _buildDivider(),
@@ -51,11 +60,22 @@ class UserProfile extends StatelessWidget {
                 items: [
                   _buildSettingItem('assets/icons/AppVersion.svg', "App Version", onTap: () {}),
                   _buildDivider(),
-                  _buildSettingItem('assets/icons/TermsofService.svg', "Terms of Service", onTap: () {}),
+                  _buildSettingItem('assets/icons/TermsofService.svg', "Terms of Service", onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => TermsAndServices()),
+                    );
+                  }),
                   _buildDivider(),
-                  _buildSettingItem('assets/icons/PrivacyPolicy.svg', "Privacy Policy", onTap: () {}),
+                  _buildSettingItem('assets/icons/PrivacyPolicy.svg', "Privacy Policy", onTap: () {  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PrivacyPolicy()),
+                  );}),
                   _buildDivider(),
-                  _buildSettingItem('assets/icons/ContactInformation.svg', "Contact Information", onTap: () {}),
+                  _buildSettingItem('assets/icons/ContactInformation.svg', "Contact Information", onTap: () {Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ContactInfoScreen()),
+                  );}),
                 ],
               ),
             ],
