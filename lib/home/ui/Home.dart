@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'components/News.dart';
+import 'components/CommunityScreen.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -13,7 +14,7 @@ class _HomeScreenState extends State<Home> {
   // List of screens that correspond to each tab
   final List<Widget> _children = [
     News(),   // Screen for 'News & Info' tab
-    //CommunityScreen(),     // Screen for 'Community' tab
+    CommunityScreen(),     // Screen for 'Community' tab
    // NewsletterScreen(),    // Screen for 'Newsletter' tab
    // EventsScreen(),        // Screen for 'Events' tab
   ];
