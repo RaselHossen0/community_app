@@ -7,9 +7,7 @@ class ContactInfoScreen extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            // Handle back button press
-          },
+          onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text('Contact info'),
         backgroundColor: Colors.black,
