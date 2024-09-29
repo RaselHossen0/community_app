@@ -1,19 +1,7 @@
 import 'package:flutter/material.dart';
+import 'CommunityDetailsScreen.dart';
 
-
-
-class CommunityScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Community Screen',
-      theme: ThemeData.dark(),
-      home: CommunityScreenFinal(),
-    );
-  }
-}
-
-class CommunityScreenFinal extends StatelessWidget {
+class CommunityScreen  extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,10 +41,10 @@ class CommunityScreenFinal extends StatelessWidget {
                 Spacer(),
                 ElevatedButton.icon(
                   onPressed: () {},
-                  icon: Icon(Icons.add),
-                  label: Text('Create'),
+                  icon: Icon(Icons.add,color: Colors.black,),
+                  label: Text('Create', style: TextStyle(color: Colors.black)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Color(0xFF92C9FF),
                   ),
                 ),
               ],
@@ -68,47 +56,57 @@ class CommunityScreenFinal extends StatelessWidget {
                 CommunityListItem(
                   name: 'Mechanic Club',
                   members: '200+',
+                  subtitle: 'Web Development',
                   imagePath: 'assets/images/avatar.png',
                 ),
                 CommunityListItem(
                   name: 'Meme Shecholck',
                   members: '1200+',
+                  subtitle: 'Web Development',
                   imagePath: 'assets/images/image1.png',
                 ),
                 CommunityListItem(
-                  name: 'Corporate shits',
+                  name: 'Corporate ',
                   members: '9.8k+',
+                  subtitle: 'Web Development',
                   imagePath: 'assets/images/image2.png',
                 ),
                 CommunityListItem(
                   name: 'Funny Trolls 18',
                   members: '200+',
+                  subtitle: 'Web Development',
                   imagePath: 'assets/images/image3.png',
                 ),
                 CommunityListItem(
                   name: 'Houston Fun memes',
                   members: '200+',
+                  subtitle: 'Web Development',
                   imagePath: 'assets/images/image4.png',
                 ),
                 CommunityListItem(
                   name: 'Art Club',
                   members: '200+',
+                  subtitle: 'Web Development',
                   imagePath: 'assets/images/image5.png',
                 ),
                 CommunityListItem(
                   name: 'Inner peach',
                   members: '200+',
+                  subtitle: 'Web Development',
                   imagePath: 'assets/images/image1.png',
                 ),
                 CommunityListItem(
-                  name: 'Nigga 20',
+                  name: 'Ni 20',
                   members: '200+',
+                  subtitle: 'Web Development',
                   imagePath: 'assets/images/image2.png',
                 ),
                 CommunityListItem(
                   name: 'Secrets',
                   members: '200+',
+                  subtitle: 'Web Development',
                   imagePath: 'assets/images/image3.png',
+
                 ),
               ],
             ),
@@ -122,12 +120,14 @@ class CommunityScreenFinal extends StatelessWidget {
 class CommunityListItem extends StatelessWidget {
   final String name;
   final String members;
+  final String subtitle;
   final String imagePath;
 
   const CommunityListItem({
     Key? key,
     required this.name,
     required this.members,
+    required this.subtitle,
     required this.imagePath,
   }) : super(key: key);
 
@@ -138,8 +138,28 @@ class CommunityListItem extends StatelessWidget {
         backgroundImage: AssetImage(imagePath),
       ),
       title: Text(name),
-      subtitle: Text('Web Development'),
-      trailing: Text(members),
+    subtitle: Text(subtitle),
+
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,  // Ensures the row takes up only as much space as needed
+        children: [
+          Icon(Icons.people, color: Colors.grey),  // Icon next to members count
+          SizedBox(width: 5),  // A little spacing between the icon and the text
+          Text(members),
+        ],
+      ),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CommunityDetailsScreen(
+              name: name,
+              members: members,
+              subtitle: subtitle,
+            ),
+          ),
+        );
+      },
     );
   }
 }
