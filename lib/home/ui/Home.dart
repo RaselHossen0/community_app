@@ -4,6 +4,7 @@ import 'components/News.dart';
 import 'components/CommunityScreen.dart';  // Correct import here
 import 'components/NewsletterScreen.dart';
 import 'components/EventsScreen.dart';
+import 'components/EventDetailsScreen.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -19,6 +20,7 @@ class _HomeScreenState extends State<Home> {
     CommunityScreen(),     // Screen for 'Community' tab
     NewsletterScreen(),    // Screen for 'Newsletter' tab
      EventsScreen(),        // Screen for 'Events' tab
+    //EventDetailsScreen()
   ];
 
   void onTabTapped(int index) {
@@ -46,7 +48,7 @@ class _HomeScreenState extends State<Home> {
           ),
           BottomNavigationBarItem(
             icon: SvgPicture.asset(
-              'assets/icons/Community.svg',
+              'assets/icons/Events.svg',
               width: 24.0,
               height: 24.0,
               color: _currentIndex == 1 ? Color(0xFF92C9FF) : Colors.grey,
@@ -64,7 +66,7 @@ class _HomeScreenState extends State<Home> {
           ),
           BottomNavigationBarItem(
             icon: SvgPicture.asset(
-              'assets/icons/Events.svg',
+              'assets/icons/Community.svg',
               width: 24.0,
               height: 24.0,
               color: _currentIndex == 3 ? Color(0xFF92C9FF) : Colors.grey,
