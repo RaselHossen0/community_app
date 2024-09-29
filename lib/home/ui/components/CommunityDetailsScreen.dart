@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'InfoScreen.dart';
 
 class CommunityDetailsScreen extends StatelessWidget {
   final String name;
@@ -39,7 +40,11 @@ class CommunityDetailsScreen extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.info_outline, color: Colors.white),
             onPressed: () {
-              // Add info action here
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => InfoScreen(),
+                ),
+              );
             },
           ),
         ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'CommunityDetailsScreen.dart';
-
+import 'Chat.dart';
+const bool isAdmin = true;  // Change this to false for non-admin users
 class CommunityScreen  extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -149,16 +150,29 @@ class CommunityListItem extends StatelessWidget {
         ],
       ),
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CommunityDetailsScreen(
-              name: name,
-              members: members,
-              subtitle: subtitle,
+        if (isAdmin) {
+          // If the user is an admin, navigate to the Chat screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Chat(
+                name: name,
+                subtitle: subtitle,),  // Assuming Chat.dart has a Chat widget
             ),
-          ),
-        );
+          );
+        } else {
+          // If the user is not an admin, navigate to the CommunityDetailsScreen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CommunityDetailsScreen(
+                name: name,
+                members: members,
+                subtitle: subtitle,
+              ),
+            ),
+          );
+        }
       },
     );
   }
