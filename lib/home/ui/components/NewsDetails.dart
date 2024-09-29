@@ -90,20 +90,41 @@ class NewsDetails extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: BottomAppBar(
-        color: Colors.grey[900],
+        color: Colors.black,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            TextButton(
+            OutlinedButton(
               onPressed: () {},
-              child: Text('Back', style: TextStyle(color: Colors.white)),
+              style: OutlinedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),  // Adjust padding to match the size in the image
+                side: BorderSide(color: Colors.white, width: 2),  // Add a white border
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),  // Make the button rounded
+                ),
+              ),
+              child: Text(
+                'Back',
+                style: TextStyle(color: Colors.white),  // White text color
+              ),
             ),
-            TextButton(
+            OutlinedButton(
               onPressed: () {},
-              child: Text('Next', style: TextStyle(color: Colors.white)),
+              style: OutlinedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),  // Adjust padding to match the size in the image
+                side: BorderSide(color: Colors.white, width: 2),  // Add a white border
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),  // Make the button rounded
+                ),
+              ),
+              child: Text(
+                'Next',
+                style: TextStyle(color: Colors.white),  // White text color
+              ),
             ),
           ],
         ),
+
       ),
     );
   }
