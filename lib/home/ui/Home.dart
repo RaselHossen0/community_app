@@ -1,48 +1,158 @@
+import 'package:community_app/auth/ui/SignUpScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'components/News.dart';
-import 'components/CommunityScreen.dart';  // Correct import here
-import 'components/NewsletterScreen.dart';
-import 'components/EventsScreen.dart';
-import 'components/EventDetailsScreen.dart';
 
-class Home extends StatefulWidget {
+import '../../auth/provider/AuthProvider.dart';
+import '../../auth/provider/UserState.dart';
+import '../../newsletter/ui/NewsLettersList.dart';
+import 'HomeScreen.dart';
+import 'components/CommunityScreen.dart';
+import 'components/ContactInfoScreen.dart';
+import 'components/EventsScreen.dart';
+import 'components/News.dart';
+import 'components/PersonalInfo.dart';
+import 'components/PrivacyPolicy.dart';
+import 'components/TermsAndServices.dart';
+
+final bottomNavProvider = StateProvider<int>((ref) => 0);
+
+class Home extends ConsumerStatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<Home> {
-  int _currentIndex = 0;  // Keeps track of the current tab index
-
-  // List of screens that correspond to each tab
+class _HomeScreenState extends ConsumerState<Home> {
   final List<Widget> _children = [
-    News(),   // Screen for 'News & Info' tab
-    CommunityScreen(),     // Screen for 'Community' tab
-    NewsletterScreen(),    // Screen for 'Newsletter' tab
-     EventsScreen(),        // Screen for 'Events' tab
-    //EventDetailsScreen()
+    News(),
+    CommunityScreen(),
+    NewsletterScreen(),
+    EventsScreen(),
   ];
-
-  void onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;  // Update the current index and rebuild the UI
-    });
-  }
-
+  final List<String> _titles = [
+    'News & Info',
+    'Community',
+    'Newsletter',
+    'Events',
+  ];
   @override
   Widget build(BuildContext context) {
+    final currentIndex = ref.watch(bottomNavProvider);
+
     return Scaffold(
-      body: _children[_currentIndex],
+      appBar: AppBar(
+        title: Text(_titles[currentIndex]),
+        actions: [
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ProfileScreenContent()));
+              // Handle profile tap
+            },
+            child: CircleAvatar(
+              radius: 20.0,
+              backgroundImage: AssetImage('assets/images/avatar.png'),
+            ),
+          )
+        ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+              ),
+              child: Text(
+                'Profile',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.account_circle),
+              title: Text('Profile'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return PersonalInfo();
+                }));
+                // Handle profile tap
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Settings'),
+              onTap: () {
+                // Handle settings tap
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.contact_mail),
+              title: Text('Contact Us'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return ContactInfoScreen();
+                }));
+                // Handle settings tap
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.description),
+              title: Text('Terms & Conditions'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return TermsAndServices();
+                }));
+                // Handle settings tap
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.privacy_tip),
+              title: Text('Privacy Policy'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return PrivacyPolicy();
+                }));
+                // Handle settings tap
+              },
+            ),
+            //Logout button
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              // lib/home/ui/Home.dart
+              onTap: () async {
+                ref.read(authProvider.notifier).signOut();
+                ref.read(userProvider.notifier).clearUser();
+
+                Navigator.pushAndRemoveUntil(context,
+                    MaterialPageRoute(builder: (context) {
+                  return SignUpScreen();
+                }), (route) => false);
+                // Handle logout tap
+              },
+            ),
+          ],
+        ),
+      ),
+      body: _children[currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: onTabTapped,
+        currentIndex: currentIndex,
+        onTap: (index) {
+          ref.read(bottomNavProvider.notifier).state = index;
+        },
         items: [
           BottomNavigationBarItem(
             icon: SvgPicture.asset(
               'assets/icons/News.svg',
               width: 24.0,
               height: 24.0,
-              color: _currentIndex == 0 ? Color(0xFF92C9FF) : Colors.grey,
+              color: currentIndex == 0 ? Color(0xFF92C9FF) : Colors.grey,
             ),
             label: 'News & Info',
           ),
@@ -51,7 +161,7 @@ class _HomeScreenState extends State<Home> {
               'assets/icons/Events.svg',
               width: 24.0,
               height: 24.0,
-              color: _currentIndex == 1 ? Color(0xFF92C9FF) : Colors.grey,
+              color: currentIndex == 1 ? Color(0xFF92C9FF) : Colors.grey,
             ),
             label: 'Community',
           ),
@@ -60,7 +170,7 @@ class _HomeScreenState extends State<Home> {
               'assets/icons/Letter.svg',
               width: 24.0,
               height: 24.0,
-              color: _currentIndex == 2 ? Color(0xFF92C9FF) : Colors.grey,
+              color: currentIndex == 2 ? Color(0xFF92C9FF) : Colors.grey,
             ),
             label: 'Newsletter',
           ),
@@ -69,7 +179,7 @@ class _HomeScreenState extends State<Home> {
               'assets/icons/Community.svg',
               width: 24.0,
               height: 24.0,
-              color: _currentIndex == 3 ? Color(0xFF92C9FF) : Colors.grey,
+              color: currentIndex == 3 ? Color(0xFF92C9FF) : Colors.grey,
             ),
             label: 'Events',
           ),

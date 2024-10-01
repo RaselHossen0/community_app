@@ -1,20 +1,41 @@
+// lib/home/ui/components/CommunityDetailsScreen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../chat/controller/MessageController.dart';
+import '../chat/model/MessageModel.dart';
 import 'InfoScreen.dart';
 
-class CommunityDetailsScreen extends StatelessWidget {
+class CommunityDetailsScreen extends ConsumerStatefulWidget {
   final String name;
-  final String members;
+  final List<String> members;
   final String subtitle;
+  final String communityId;
 
   const CommunityDetailsScreen({
     Key? key,
     required this.name,
     required this.members,
     required this.subtitle,
+    required this.communityId,
   }) : super(key: key);
 
   @override
+  _CommunityDetailsScreenState createState() => _CommunityDetailsScreenState();
+}
+
+class _CommunityDetailsScreenState
+    extends ConsumerState<CommunityDetailsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    ref.read(messageProvider.notifier).loadMessages(widget.communityId);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final messages = ref.watch(messageProvider);
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -27,11 +48,11 @@ class CommunityDetailsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              name,
+              widget.name,
               style: TextStyle(color: Colors.white, fontSize: 18),
             ),
             Text(
-              subtitle,
+              widget.subtitle,
               style: TextStyle(color: Color(0xFF92C9FF), fontSize: 12),
             ),
           ],
@@ -42,7 +63,9 @@ class CommunityDetailsScreen extends StatelessWidget {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => InfoScreen(),
+                  builder: (context) => InfoScreen(
+                    communityId: widget.communityId,
+                  ),
                 ),
               );
             },
@@ -53,76 +76,13 @@ class CommunityDetailsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: ListView(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/images/image1.png', // Replace with your asset image
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text(
-                    'Hundreds of students gathered today at the University of [Your City] to voice their opposition to the recent educational reforms proposed by the administration. The protest, which began at 10:00 AM in front of the Administration Building, quickly grew as students from various faculties joined in solidarity.',
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: Row(
-                    children: [
-                      Text(
-                        '9OCT | 22:53 PM',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                      Spacer(),
-                      Text(
-                        'Sent by Hishami',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                Divider(color: Colors.grey),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/images/image1.png', // Replace with your asset image
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text(
-                    'Hundreds of students gathered today at the University of [Your City] to voice their opposition to the recent educational reforms proposed by the administration. The protest, which began at 10:00 AM in front of the Administration Building, quickly grew as students from various faculties joined in solidarity.',
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: Row(
-                    children: [
-                      Text(
-                        '9OCT | 22:53 PM',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                      Spacer(),
-                      Text(
-                        'Sent by Hishami',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            child: ListView.builder(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                final message = messages[index];
+                return _buildMessageItem(message);
+              },
             ),
           ),
           Divider(color: Colors.grey),
@@ -133,11 +93,38 @@ class CommunityDetailsScreen extends StatelessWidget {
                 Icon(Icons.people, color: Colors.grey),
                 SizedBox(width: 8),
                 Text(
-                  '$members | Only Admin can send message',
+                  '${widget.members.length} | Only Admin can send message',
                   style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMessageItem(Message message) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: message.senderId == 'admin'
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color:
+                  message.senderId == 'admin' ? Colors.blue : Colors.grey[800],
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Text(message.content, style: TextStyle(color: Colors.white)),
+          ),
+          SizedBox(height: 4),
+          Text(
+            "${message.timestamp.toDate().day} ${message.timestamp.toDate().month} | ${message.timestamp.toDate().hour}:${message.timestamp.toDate().minute} ${message.timestamp.toDate().hour >= 12 ? 'PM' : 'AM'}",
+            style: TextStyle(color: Colors.grey, fontSize: 12),
           ),
         ],
       ),

@@ -1,20 +1,19 @@
-// lib/auth/ui/SignUpScreen.dart
+// lib/auth/ui/LoginScreen.dart
 import 'package:community_app/auth/data/UserService.dart';
-import 'package:community_app/auth/ui/LoginScreen.dart';
 import 'package:community_app/home/ui/Home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/User.dart' as t;
+import '../provider/UserState.dart';
+import 'SignUpScreen.dart';
 
-class SignUpScreen extends StatelessWidget {
+class LoginScreen extends ConsumerWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef watch) {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -28,7 +27,7 @@ class SignUpScreen extends StatelessWidget {
                 children: [
                   SizedBox(height: 40),
                   Text(
-                    'Sign up',
+                    'Login',
                     style: TextStyle(
                       fontFamily: 'Figtree',
                       fontWeight: FontWeight.w700,
@@ -44,14 +43,10 @@ class SignUpScreen extends StatelessWidget {
                   _buildLabeledTextField(
                       'Password', 'Enter password', passwordController,
                       isPassword: true),
-                  SizedBox(height: 16),
-                  _buildLabeledTextField('Confirm Password',
-                      'Repeat your password', confirmPasswordController,
-                      isPassword: true),
                   SizedBox(height: 24),
-                  _buildSignUpButton(context),
+                  _buildLoginButton(context, watch),
                   SizedBox(height: 16),
-                  _buildSignInRow(context),
+                  _buildSignUpRow(context),
                   SizedBox(height: 16),
                   _buildSocialSignInButton('Sign in with Google',
                       'https://www.google.com/favicon.ico'),
@@ -134,7 +129,7 @@ class SignUpScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSignUpButton(BuildContext context) {
+  Widget _buildLoginButton(BuildContext context, WidgetRef ref) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
@@ -150,7 +145,7 @@ class SignUpScreen extends StatelessWidget {
       ),
       child: ElevatedButton(
         child: Text(
-          'Sign up',
+          'Login',
           style: TextStyle(color: Colors.black),
         ),
         style: ElevatedButton.styleFrom(
@@ -159,69 +154,57 @@ class SignUpScreen extends StatelessWidget {
           padding: EdgeInsets.symmetric(vertical: 16),
         ),
         onPressed: () async {
-          await _signUp(context);
+          await _login(context, ref);
         },
       ),
     );
   }
 
-  Future<void> _signUp(BuildContext context) async {
+  Future<void> _login(BuildContext context, WidgetRef ref) async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
-    final confirmPassword = confirmPasswordController.text.trim();
     final UserService userService = UserService();
-    if (password != confirmPassword) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Passwords do not match')));
-      return;
-    }
+    final userNotifier = ref.read(userProvider.notifier);
 
     try {
       UserCredential userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      final user = t.User(
-        uid: userCredential.user!.uid,
-        email: userCredential.user!.email!,
-        displayName: userCredential.user!.displayName ?? '',
-        photoURL: userCredential.user!.photoURL ?? '',
-        role: 'user',
-      );
+      final user = await userService.getUser(userCredential.user!.uid);
 
-      await userService.addUser(user);
+      userNotifier.setUser(user!);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => Home()),
       );
     } on FirebaseAuthException catch (e) {
-      print(';;');
       print(e);
-      print('Failed to create user: ${e.message}');
+      print('Failed to login: ${e.message}');
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message ?? 'Sign up failed')));
+          .showSnackBar(SnackBar(content: Text(e.message ?? 'Login failed')));
     } on Exception catch (e) {
-      print('Failed to create user: $e');
+      print('Failed to login: $e');
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Sign up failed')));
+          .showSnackBar(SnackBar(content: Text('Login failed')));
     }
   }
 
-  Widget _buildSignInRow(BuildContext context) {
+  Widget _buildSignUpRow(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Already have an account? ',
+          'Don\'t have an account? ',
           style: TextStyle(color: Colors.white),
         ),
         TextButton(
-          child: Text('Sign in', style: TextStyle(color: Colors.blue)),
+          child: Text('Sign up', style: TextStyle(color: Colors.blue)),
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => LoginScreen()),
+              MaterialPageRoute(builder: (context) => SignUpScreen()),
             );
           },
         ),

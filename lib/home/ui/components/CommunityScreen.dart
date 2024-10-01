@@ -1,23 +1,27 @@
+// lib/home/ui/components/CommunityScreen.dart
+import 'dart:io';
+
+import 'package:community_app/auth/provider/UserState.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'CommunityDetailsScreen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../providers/CommunityState.dart';
 import 'Chat.dart';
-const bool isAdmin = true;  // Change this to false for non-admin users
-class CommunityScreen  extends StatelessWidget {
+import 'CommunityDetailsScreen.dart';
+
+final bool isAdmin = true;
+
+class CommunityScreen extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final communities = ref.watch(communityProvider);
+    final user = ref.watch(userProvider.notifier);
+    print('User: ${user.getUser()?.role}');
+    print('Communities: $communities');
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Community'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {},
-          ),
-          CircleAvatar(
-            backgroundImage: AssetImage('assets/images/avatar.png'),
-          ),
-        ],
-      ),
       body: Column(
         children: [
           Padding(
@@ -40,89 +44,145 @@ class CommunityScreen  extends StatelessWidget {
                   ),
                 ),
                 Spacer(),
-                ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: Icon(Icons.add,color: Colors.black,),
-                  label: Text('Create', style: TextStyle(color: Colors.black)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF92C9FF),
+                if (isAdmin)
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      _showCreateCommunityDialog(context, ref);
+                      // Navigate to create community screen
+                    },
+                    icon: Icon(
+                      Icons.add,
+                      color: Colors.black,
+                    ),
+                    label:
+                        Text('Create', style: TextStyle(color: Colors.black)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF92C9FF),
+                    ),
                   ),
-                ),
               ],
             ),
           ),
           Expanded(
             child: ListView(
-              children: [
-                CommunityListItem(
-                  name: 'Mechanic Club',
-                  members: '200+',
-                  subtitle: 'Web Development',
-                  imagePath: 'assets/images/avatar.png',
-                ),
-                CommunityListItem(
-                  name: 'Meme Shecholck',
-                  members: '1200+',
-                  subtitle: 'Web Development',
-                  imagePath: 'assets/images/image1.png',
-                ),
-                CommunityListItem(
-                  name: 'Corporate ',
-                  members: '9.8k+',
-                  subtitle: 'Web Development',
-                  imagePath: 'assets/images/image2.png',
-                ),
-                CommunityListItem(
-                  name: 'Funny Trolls 18',
-                  members: '200+',
-                  subtitle: 'Web Development',
-                  imagePath: 'assets/images/image3.png',
-                ),
-                CommunityListItem(
-                  name: 'Houston Fun memes',
-                  members: '200+',
-                  subtitle: 'Web Development',
-                  imagePath: 'assets/images/image4.png',
-                ),
-                CommunityListItem(
-                  name: 'Art Club',
-                  members: '200+',
-                  subtitle: 'Web Development',
-                  imagePath: 'assets/images/image5.png',
-                ),
-                CommunityListItem(
-                  name: 'Inner peach',
-                  members: '200+',
-                  subtitle: 'Web Development',
-                  imagePath: 'assets/images/image1.png',
-                ),
-                CommunityListItem(
-                  name: 'Ni 20',
-                  members: '200+',
-                  subtitle: 'Web Development',
-                  imagePath: 'assets/images/image2.png',
-                ),
-                CommunityListItem(
-                  name: 'Secrets',
-                  members: '200+',
-                  subtitle: 'Web Development',
-                  imagePath: 'assets/images/image3.png',
-
-                ),
-              ],
+              children: communities.map((community) {
+                return CommunityListItem(
+                  name: community['name'],
+                  id: community['id'],
+                  // Ensure that the members field is correctly parsed as a List<String>
+                  members: List<String>.from(community['members'] ?? []),
+                  subtitle: community['subtitle'],
+                  imagePath:
+                      community['imagePath'] ?? 'assets/images/avatar.png',
+                  isAdmin: user.getUser()?.role == 'admin' ?? false,
+                );
+              }).toList(),
             ),
           ),
         ],
       ),
     );
   }
+
+  void _showCreateCommunityDialog(BuildContext context, WidgetRef ref) {
+    final _nameController = TextEditingController();
+    final _membersController = TextEditingController();
+    final _subtitleController = TextEditingController();
+    final ImagePicker _picker = ImagePicker();
+    XFile? _pickedImage;
+
+    Future<String?> _uploadImage(XFile image) async {
+      try {
+        final storageRef = FirebaseStorage.instance
+            .ref()
+            .child('community_images/${image.name}');
+        final uploadTask = storageRef.putFile(File(image.path));
+        final snapshot = await uploadTask;
+        return await snapshot.ref.getDownloadURL();
+      } catch (e) {
+        print('Error uploading image: $e');
+        return null;
+      }
+    }
+
+    Future<void> _pickImage() async {
+      final pickedImage = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedImage != null) {
+        _pickedImage = pickedImage;
+      }
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Create New Community"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(labelText: 'Community Name'),
+              ),
+              TextField(
+                controller: _membersController,
+                decoration: InputDecoration(
+                    labelText: 'Members (comma-separated UIDs)'),
+              ),
+              TextField(
+                controller: _subtitleController,
+                decoration: InputDecoration(labelText: 'Subtitle'),
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              child: Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              child: Text("Create"),
+              onPressed: () async {
+                if (_nameController.text.isNotEmpty &&
+                    _subtitleController.text.isNotEmpty) {
+                  // Create the new community
+                  await ref.read(communityProvider.notifier).createCommunity({
+                    'name': _nameController.text,
+                    'members': _membersController.text.split(','),
+                    'subtitle': _subtitleController.text,
+                    'imagePath': _pickedImage != null
+                        ? await _uploadImage(_pickedImage!)
+                        : null,
+                  });
+
+                  // Close the dialog
+                  Navigator.of(context).pop();
+                } else {
+                  // Show error message
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Please fill all fields'),
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 class CommunityListItem extends StatelessWidget {
   final String name;
-  final String members;
+  final List<String> members;
   final String subtitle;
   final String imagePath;
+  final String id;
+  final bool isAdmin;
 
   const CommunityListItem({
     Key? key,
@@ -130,6 +190,8 @@ class CommunityListItem extends StatelessWidget {
     required this.members,
     required this.subtitle,
     required this.imagePath,
+    required this.isAdmin,
+    required this.id,
   }) : super(key: key);
 
   @override
@@ -139,29 +201,28 @@ class CommunityListItem extends StatelessWidget {
         backgroundImage: AssetImage(imagePath),
       ),
       title: Text(name),
-    subtitle: Text(subtitle),
-
+      subtitle: Text(subtitle),
       trailing: Row(
-        mainAxisSize: MainAxisSize.min,  // Ensures the row takes up only as much space as needed
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.people, color: Colors.grey),  // Icon next to members count
-          SizedBox(width: 5),  // A little spacing between the icon and the text
-          Text(members),
+          Icon(Icons.people, color: Colors.grey),
+          SizedBox(width: 5),
+          Text(members.length.toString() ?? "0"),
         ],
       ),
       onTap: () {
         if (isAdmin) {
-          // If the user is an admin, navigate to the Chat screen
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => Chat(
+                communityId: id,
                 name: name,
-                subtitle: subtitle,),  // Assuming Chat.dart has a Chat widget
+                subtitle: subtitle,
+              ),
             ),
           );
         } else {
-          // If the user is not an admin, navigate to the CommunityDetailsScreen
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -169,6 +230,7 @@ class CommunityListItem extends StatelessWidget {
                 name: name,
                 members: members,
                 subtitle: subtitle,
+                communityId: id,
               ),
             ),
           );

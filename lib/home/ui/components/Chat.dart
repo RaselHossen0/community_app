@@ -1,17 +1,65 @@
+// lib/home/ui/components/Chat.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:community_app/auth/provider/UserState.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../chat/controller/MessageController.dart';
+import '../chat/model/MessageModel.dart';
 import 'InfoScreen.dart';
-class Chat extends StatelessWidget {
+
+class Chat extends ConsumerStatefulWidget {
   final String name;
   final String subtitle;
+  final String communityId;
 
   const Chat({
     Key? key,
     required this.name,
     required this.subtitle,
+    required this.communityId,
   }) : super(key: key);
 
   @override
+  _ChatState createState() => _ChatState();
+}
+
+class _ChatState extends ConsumerState<Chat> {
+  final TextEditingController _messageController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    ref.read(messageProvider.notifier).loadMessages(widget.communityId);
+  }
+
+  void _sendMessage() async {
+    final user = ref.read(userProvider.notifier).getUser();
+    if (user != null &&
+        user.role == 'admin' &&
+        _messageController.text.isNotEmpty) {
+      final message = Message(
+        id: '',
+        communityId: widget.communityId,
+        senderId: user.uid,
+        type: 'text',
+        content: _messageController.text,
+        timestamp: Timestamp.now(),
+      );
+      await ref.read(messageProvider.notifier).sendMessage(message);
+      _messageController.clear();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Only admins can send messages')),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final messages = ref.watch(messageProvider);
+    print(messages.length);
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -23,8 +71,9 @@ class Chat extends StatelessWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(name, style: TextStyle(color: Colors.white)),
-            Text(subtitle, style: TextStyle(color: Colors.blue[300], fontSize: 14)),
+            Text(widget.name, style: TextStyle(color: Colors.white)),
+            Text(widget.subtitle,
+                style: TextStyle(color: Colors.blue[300], fontSize: 14)),
           ],
         ),
         actions: [
@@ -33,7 +82,9 @@ class Chat extends StatelessWidget {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => InfoScreen(),
+                  builder: (context) => InfoScreen(
+                    communityId: widget.communityId,
+                  ),
                 ),
               );
             },
@@ -43,13 +94,18 @@ class Chat extends StatelessWidget {
       body: Column(
         children: [
           Expanded(
-            child: ListView(
+            child: ListView.builder(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              children: [
-                _buildSentMessage("Hi! I've completed the design for your landing page. Please check it out and let me know if any revisions are needed."),
-                _buildReceivedMessage("Hi! I've completed the design for your landing page. Please check it out and let me know if any revisions are needed."),
-                _buildMessageWithAttachments(),
-              ],
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                final message = messages[index];
+                final user = ref.read(userProvider.notifier).getUser();
+                if (message.senderId == user?.uid) {
+                  return _buildSentMessage(message);
+                } else {
+                  return _buildReceivedMessage(message);
+                }
+              },
             ),
           ),
           _buildMessageInput(),
@@ -58,7 +114,7 @@ class Chat extends StatelessWidget {
     );
   }
 
-  Widget _buildSentMessage(String message) {
+  Widget _buildSentMessage(Message message) {
     return Container(
       alignment: Alignment.centerRight,
       margin: EdgeInsets.only(bottom: 16),
@@ -75,11 +131,11 @@ class Chat extends StatelessWidget {
                 topRight: Radius.circular(16),
               ),
             ),
-            child: Text(message, style: TextStyle(color: Colors.white)),
+            child: Text(message.content, style: TextStyle(color: Colors.white)),
           ),
           SizedBox(height: 4),
           Text(
-            "9OCT | 22:53 PM",
+            "${message.timestamp.toDate().day} ${message.timestamp.toDate().month} | ${message.timestamp.toDate().hour}:${message.timestamp.toDate().minute} ${message.timestamp.toDate().hour >= 12 ? 'PM' : 'AM'}",
             style: TextStyle(color: Colors.grey, fontSize: 12),
           ),
         ],
@@ -87,7 +143,7 @@ class Chat extends StatelessWidget {
     );
   }
 
-  Widget _buildReceivedMessage(String message) {
+  Widget _buildReceivedMessage(Message message) {
     return Container(
       alignment: Alignment.centerLeft,
       margin: EdgeInsets.only(bottom: 16),
@@ -95,7 +151,8 @@ class Chat extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           CircleAvatar(
-            backgroundImage: AssetImage('assets/images/avatar.png'), // Replace with an actual asset
+            backgroundImage: AssetImage(
+                'assets/images/avatar.png'), // Replace with an actual asset
             radius: 16,
           ),
           SizedBox(width: 8),
@@ -113,111 +170,16 @@ class Chat extends StatelessWidget {
                       topLeft: Radius.circular(16),
                     ),
                   ),
-                  child: Text(message, style: TextStyle(color: Colors.white)),
+                  child: Text(message.content,
+                      style: TextStyle(color: Colors.white)),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  "9OCT | 22:53 PM",
+                  "${message.timestamp.toDate().day} ${message.timestamp.toDate().month} | ${message.timestamp.toDate().hour}:${message.timestamp.toDate().minute} ${message.timestamp.toDate().hour >= 12 ? 'PM' : 'AM'}",
                   style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMessageWithAttachments() {
-    return Container(
-      alignment: Alignment.centerLeft,
-      margin: EdgeInsets.only(bottom: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          CircleAvatar(
-            backgroundImage: AssetImage('assets/images/avatar.png'), // Replace with an actual asset
-            radius: 16,
-          ),
-          SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[800],
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(16),
-                      bottomRight: Radius.circular(16),
-                      topLeft: Radius.circular(16),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Here's the banner design for the campaign:",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        "ATTACHMENTS",
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                      SizedBox(height: 8),
-                      Column(
-                        children: [
-                          _buildAttachment("Design Banner 1.png", "assets/images/image1.png"),
-                          SizedBox(height: 8),
-                          _buildAttachment("Design Banner 2.png", "assets/images/image2.png"),
-                          SizedBox(height: 8),
-                          _buildAttachment("Design Banner 3.png", "assets/images/image3.png"), // Add more attachments here
-                        ],
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        "9OCT | 22:53 PM",
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  Widget _buildAttachment(String filename, String assetPath) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 100,
-            height: 60,
-            margin: EdgeInsets.all(8),
-            child: Image.asset(
-              assetPath,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Expanded(
-            child: Text(filename, style: TextStyle(color: Colors.white)),
-          ),
-          IconButton(
-            icon: Icon(Icons.file_download, color: Colors.white),
-            onPressed: () {
-              // Add download functionality
-            },
           ),
         ],
       ),
@@ -232,6 +194,7 @@ class Chat extends StatelessWidget {
         children: [
           Expanded(
             child: TextField(
+              controller: _messageController,
               decoration: InputDecoration(
                 hintText: 'Send a message...',
                 hintStyle: TextStyle(color: Colors.grey),
@@ -251,6 +214,10 @@ class Chat extends StatelessWidget {
             onPressed: () {
               // Add file attachment functionality
             },
+          ),
+          IconButton(
+            icon: Icon(Icons.send, color: Colors.blue),
+            onPressed: _sendMessage,
           ),
         ],
       ),
