@@ -1,9 +1,18 @@
+// lib/home/ui/components/NewsletterScreen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class NewsletterScreen extends StatelessWidget {
+import '../../../auth/provider/UserState.dart';
+import '../providers/NewsLetterProvider.dart';
+
+class NewsletterScreen extends ConsumerWidget {
+  NewsletterScreen({Key? key}) : super(key: key);
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isSubscribed = ref.watch(newsletterProvider);
+    final user = ref.watch(userProvider);
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -12,23 +21,6 @@ class NewsletterScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'NewsLetter',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/avatar.png'),
-                    radius: 20,
-                  ),
-                ],
-              ),
               SizedBox(height: 20),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -55,11 +47,17 @@ class NewsletterScreen extends StatelessWidget {
                       Container(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
-                            // Add subscription logic here
-                          },
+                          onPressed: isSubscribed
+                              ? null
+                              : () async {
+                                  await ref
+                                      .read(newsletterProvider.notifier)
+                                      .subscribe(user!);
+                                },
                           child: Text(
-                            'Subscribe to newletter',
+                            isSubscribed
+                                ? 'You are subscribed'
+                                : 'Subscribe to newsletter',
                             style: TextStyle(color: Colors.black),
                           ),
                           style: ElevatedButton.styleFrom(
@@ -67,7 +65,6 @@ class NewsletterScreen extends StatelessWidget {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
-
                             foregroundColor: Colors.black,
                             elevation: 0,
                             backgroundColor: Colors.transparent,

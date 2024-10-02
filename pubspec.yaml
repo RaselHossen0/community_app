@@ -47,6 +47,7 @@ dependencies:
   shared_preferences:
   firebase_storage:
   image_picker:
+  intl:
 
 
 

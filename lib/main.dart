@@ -69,7 +69,7 @@ void main() async {
   );
 
   runApp(ProviderScope(child: MyApp()));
-  await insertSampleNewsData();
+  // await insertSampleNewsData();
 }
 
 class MyApp extends ConsumerWidget {

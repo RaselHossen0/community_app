@@ -5,12 +5,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../auth/provider/AuthProvider.dart';
 import '../../auth/provider/UserState.dart';
-import '../../newsletter/ui/NewsLettersList.dart';
 import 'HomeScreen.dart';
 import 'components/CommunityScreen.dart';
 import 'components/ContactInfoScreen.dart';
 import 'components/EventsScreen.dart';
 import 'components/News.dart';
+import 'components/NewsletterScreen.dart';
 import 'components/PersonalInfo.dart';
 import 'components/PrivacyPolicy.dart';
 import 'components/TermsAndServices.dart';
