@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 
 class NewsDetails extends StatelessWidget {
   final String title;
@@ -27,11 +29,19 @@ class NewsDetails extends StatelessWidget {
             children: [
               Stack(
                 children: [
-                  Image.asset(
+                  Image.network(
                     imagePath,
-                    width: double.infinity,
                     height: 300,
+                    width: double.infinity,
                     fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return SvgPicture.asset(
+                        'assets/icons/newsP.svg',
+                        height: 300,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      );
+                    },
                   ),
                   Positioned(
                     top: 16,
@@ -60,7 +70,8 @@ class NewsDetails extends StatelessWidget {
                     Row(
                       children: [
                         Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: Color(0xFF92C9FF),
                             borderRadius: BorderRadius.circular(20),
@@ -72,7 +83,7 @@ class NewsDetails extends StatelessWidget {
                         ),
                         SizedBox(width: 16),
                         Text(
-                          date,
+                          formatDate(date), // Use the formatted date
                           style: TextStyle(color: Colors.grey),
                         ),
                       ],
@@ -89,43 +100,12 @@ class NewsDetails extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.black,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),  // Adjust padding to match the size in the image
-                side: BorderSide(color: Colors.white, width: 2),  // Add a white border
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),  // Make the button rounded
-                ),
-              ),
-              child: Text(
-                'Back',
-                style: TextStyle(color: Colors.white),  // White text color
-              ),
-            ),
-            OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),  // Adjust padding to match the size in the image
-                side: BorderSide(color: Colors.white, width: 2),  // Add a white border
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),  // Make the button rounded
-                ),
-              ),
-              child: Text(
-                'Next',
-                style: TextStyle(color: Colors.white),  // White text color
-              ),
-            ),
-          ],
-        ),
-
-      ),
     );
   }
+}
+
+String formatDate(String date) {
+  final DateTime dateTime = DateTime.parse(date); // Convert string to DateTime
+  return DateFormat.yMMMd()
+      .format(dateTime); // Format date to a readable format (e.g., Jan 1, 2024)
 }

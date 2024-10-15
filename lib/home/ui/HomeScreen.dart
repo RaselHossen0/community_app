@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'components/PersonalInfo.dart';
+
 final bottomNavProvider = StateProvider<int>((ref) => 0);
 
 class HomeScreen extends ConsumerWidget {
@@ -29,6 +31,9 @@ class HomeScreen extends ConsumerWidget {
               leading: Icon(Icons.account_circle),
               title: Text('Profile'),
               onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return PersonalInfo();
+                }));
                 // Handle profile tap
               },
             ),
@@ -81,7 +86,7 @@ class HomeScreen extends ConsumerWidget {
       case 2:
         return NotificationsScreenContent();
       case 3:
-        return ProfileScreenContent();
+        return PersonalInfo();
       default:
         return HomeScreenContent();
     }
@@ -120,18 +125,6 @@ class NotificationsScreenContent extends StatelessWidget {
         title: Text('Notifications'),
       ),
       body: Center(child: Text('Notifications Screen')),
-    );
-  }
-}
-
-class ProfileScreenContent extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Profile'),
-      ),
-      body: Center(child: Text('Profile Screen')),
     );
   }
 }

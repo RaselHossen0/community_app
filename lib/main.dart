@@ -2,10 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:community_app/auth/ui/AuthCheker.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/ThemeNotifier.dart';
 import 'firebase_options.dart';
+import 'newsletter/NewsLetter.dart';
 
 Future<void> insertSampleNewsData() async {
   final firestore = FirebaseFirestore.instance;
@@ -62,11 +64,25 @@ Future<void> insertSampleNewsData() async {
   }
 }
 
+Future<void> addNewsletter() async {
+  final newsletter = Newsletter(
+    id: '', // Firestore will generate an ID automatically
+    title: 'Newsletter Title',
+    description: 'This is the newsletter description.',
+    date: DateTime.now(),
+  );
+
+  await FirebaseFirestore.instance
+      .collection('newsletters')
+      .add(newsletter.toFirestore());
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  // await addNewsletter();
 
   runApp(ProviderScope(child: MyApp()));
   // await insertSampleNewsData();
@@ -85,6 +101,7 @@ class MyApp extends ConsumerWidget {
         appBarTheme: AppBarTheme(color: Colors.black),
       ),
       home: AuthChecker(),
+      builder: EasyLoading.init(),
     );
   }
 }

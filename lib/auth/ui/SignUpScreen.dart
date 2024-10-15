@@ -4,6 +4,7 @@ import 'package:community_app/auth/ui/LoginScreen.dart';
 import 'package:community_app/home/ui/Home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import '../models/User.dart' as t;
 
@@ -165,16 +166,20 @@ class SignUpScreen extends StatelessWidget {
     );
   }
 
+  // lib/auth/ui/SignUpScreen.dart
+
   Future<void> _signUp(BuildContext context) async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
     final confirmPassword = confirmPasswordController.text.trim();
     final UserService userService = UserService();
+
     if (password != confirmPassword) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Passwords do not match')));
+      EasyLoading.showError('Passwords do not match');
       return;
     }
+
+    EasyLoading.show(status: 'Signing up...');
 
     try {
       UserCredential userCredential =
@@ -191,20 +196,19 @@ class SignUpScreen extends StatelessWidget {
       );
 
       await userService.addUser(user);
+      EasyLoading.showSuccess('Sign up successful');
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => Home()),
       );
     } on FirebaseAuthException catch (e) {
-      print(';;');
-      print(e);
       print('Failed to create user: ${e.message}');
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message ?? 'Sign up failed')));
+      EasyLoading.showError(e.message ?? 'Sign up failed');
     } on Exception catch (e) {
       print('Failed to create user: $e');
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Sign up failed')));
+      EasyLoading.showError('Sign up failed');
+    } finally {
+      EasyLoading.dismiss();
     }
   }
 

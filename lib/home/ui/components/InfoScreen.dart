@@ -12,8 +12,9 @@ import 'CommunityMembersScreen.dart';
 
 class InfoScreen extends ConsumerWidget {
   final String communityId;
+  final String adminId;
 
-  InfoScreen({required this.communityId});
+  InfoScreen({required this.communityId, required this.adminId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -46,8 +47,8 @@ class InfoScreen extends ConsumerWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      CommunityMembersScreen(communityId: communityId),
+                  builder: (context) => CommunityMembersScreen(
+                      communityId: communityId, adminId: adminId),
                 ),
               );
             },

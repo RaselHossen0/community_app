@@ -25,13 +25,20 @@ class EventNotifier extends StateNotifier<List<Event>> {
         .where('startTime', isGreaterThanOrEqualTo: startOfDay)
         .where('startTime', isLessThanOrEqualTo: endOfDay)
         .get();
+    print(querySnapshot.docs.length);
 
     state = querySnapshot.docs.map((doc) => Event.fromDocument(doc)).toList();
   }
 
   Future<void> insertEvent(Event event) async {
     await _firestore.collection('events').add(event.toMap());
-    loadEvents();
+    // loadEvents();
+  }
+
+  //delete event
+  Future<void> deleteEvent(Event event) async {
+    await _firestore.collection('events').doc(event.id).delete();
+    // loadEvents();
   }
 
   List<Event> getEvents() {

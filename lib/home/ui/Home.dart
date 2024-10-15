@@ -1,11 +1,11 @@
 import 'package:community_app/auth/ui/SignUpScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../auth/provider/AuthProvider.dart';
 import '../../auth/provider/UserState.dart';
-import 'HomeScreen.dart';
 import 'components/CommunityScreen.dart';
 import 'components/ContactInfoScreen.dart';
 import 'components/EventsScreen.dart';
@@ -24,7 +24,7 @@ class Home extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<Home> {
   final List<Widget> _children = [
-    News(),
+    NewsPage(),
     CommunityScreen(),
     NewsletterScreen(),
     EventsScreen(),
@@ -38,6 +38,7 @@ class _HomeScreenState extends ConsumerState<Home> {
   @override
   Widget build(BuildContext context) {
     final currentIndex = ref.watch(bottomNavProvider);
+    final user = ref.watch(userProvider); // Watch for changes to user
 
     return Scaffold(
       appBar: AppBar(
@@ -45,15 +46,17 @@ class _HomeScreenState extends ConsumerState<Home> {
         actions: [
           GestureDetector(
             onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ProfileScreenContent()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return PersonalInfo();
+              }));
               // Handle profile tap
             },
             child: CircleAvatar(
               radius: 20.0,
-              backgroundImage: AssetImage('assets/images/avatar.png'),
+              backgroundImage: user?.photoURL != null
+                  ? NetworkImage(user!.photoURL!)
+                  : AssetImage('assets/default_profile.png')
+                      as ImageProvider, // Default image if photoURL is null
             ),
           )
         ],
@@ -66,12 +69,42 @@ class _HomeScreenState extends ConsumerState<Home> {
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
               ),
-              child: Text(
-                'Profile',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Display user's profile picture
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundImage: user?.photoURL != null
+                        ? NetworkImage(user!.photoURL!)
+                        : AssetImage('assets/default_profile.png')
+                            as ImageProvider, // Default image if photoURL is null
+                    backgroundColor: Colors.white,
+                    onBackgroundImageError: (exception, stackTrace) {
+                      print('Error loading image: $exception');
+                    },
+                    // Background color for the avatar
+                  ),
+                  SizedBox(height: 10),
+                  // Display user's name
+                  Text(
+                    user?.displayName ?? 'Guest',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  // Display user's email
+                  Text(
+                    user?.email ?? 'guest@example.com',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
               ),
             ),
             ListTile(
@@ -84,13 +117,7 @@ class _HomeScreenState extends ConsumerState<Home> {
                 // Handle profile tap
               },
             ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                // Handle settings tap
-              },
-            ),
+
             ListTile(
               leading: Icon(Icons.contact_mail),
               title: Text('Contact Us'),
@@ -123,20 +150,26 @@ class _HomeScreenState extends ConsumerState<Home> {
             ),
             //Logout button
             ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Logout'),
-              // lib/home/ui/Home.dart
-              onTap: () async {
-                ref.read(authProvider.notifier).signOut();
-                ref.read(userProvider.notifier).clearUser();
+                leading: Icon(Icons.logout),
+                title: Text('Logout'),
+                // lib/home/ui/Home.dart
 
-                Navigator.pushAndRemoveUntil(context,
-                    MaterialPageRoute(builder: (context) {
-                  return SignUpScreen();
-                }), (route) => false);
-                // Handle logout tap
-              },
-            ),
+                onTap: () async {
+                  EasyLoading.show(status: 'Logging out...');
+                  try {
+                    ref.read(authProvider.notifier).signOut();
+                    ref.read(userProvider.notifier).clearUser();
+                    EasyLoading.showSuccess('Logout successful');
+                    Navigator.pushAndRemoveUntil(context,
+                        MaterialPageRoute(builder: (context) {
+                      return SignUpScreen();
+                    }), (route) => false);
+                  } catch (e) {
+                    EasyLoading.showError('Logout failed');
+                  } finally {
+                    EasyLoading.dismiss();
+                  }
+                }),
           ],
         ),
       ),

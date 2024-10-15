@@ -3,6 +3,7 @@ import 'package:community_app/auth/data/UserService.dart';
 import 'package:community_app/home/ui/Home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../provider/UserState.dart';
@@ -166,6 +167,8 @@ class LoginScreen extends ConsumerWidget {
     final UserService userService = UserService();
     final userNotifier = ref.read(userProvider.notifier);
 
+    EasyLoading.show(status: 'Logging in...');
+
     try {
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -175,6 +178,7 @@ class LoginScreen extends ConsumerWidget {
       final user = await userService.getUser(userCredential.user!.uid);
 
       userNotifier.setUser(user!);
+      EasyLoading.showSuccess('Login successful');
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => Home()),
@@ -182,12 +186,12 @@ class LoginScreen extends ConsumerWidget {
     } on FirebaseAuthException catch (e) {
       print(e);
       print('Failed to login: ${e.message}');
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message ?? 'Login failed')));
+      EasyLoading.showError(e.message ?? 'Login failed');
     } on Exception catch (e) {
       print('Failed to login: $e');
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Login failed')));
+      EasyLoading.showError('Login failed');
+    } finally {
+      EasyLoading.dismiss();
     }
   }
 

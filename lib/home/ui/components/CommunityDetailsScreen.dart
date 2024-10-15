@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../auth/provider/UserState.dart';
 import '../chat/controller/MessageController.dart';
 import '../chat/model/MessageModel.dart';
 import 'InfoScreen.dart';
@@ -11,6 +12,7 @@ class CommunityDetailsScreen extends ConsumerStatefulWidget {
   final List<String> members;
   final String subtitle;
   final String communityId;
+  final String adminId;
 
   const CommunityDetailsScreen({
     Key? key,
@@ -18,6 +20,7 @@ class CommunityDetailsScreen extends ConsumerStatefulWidget {
     required this.members,
     required this.subtitle,
     required this.communityId,
+    required this.adminId,
   }) : super(key: key);
 
   @override
@@ -35,6 +38,8 @@ class _CommunityDetailsScreenState
   @override
   Widget build(BuildContext context) {
     final messages = ref.watch(messageProvider);
+    final isAdmin =
+        ref.read(userProvider.notifier).getUser()?.uid == widget.adminId;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -65,6 +70,7 @@ class _CommunityDetailsScreenState
                 MaterialPageRoute(
                   builder: (context) => InfoScreen(
                     communityId: widget.communityId,
+                    adminId: widget.adminId,
                   ),
                 ),
               );
@@ -81,7 +87,7 @@ class _CommunityDetailsScreenState
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final message = messages[index];
-                return _buildMessageItem(message);
+                return _buildMessageItem(message, isAdmin: isAdmin);
               },
             ),
           ),
@@ -104,19 +110,17 @@ class _CommunityDetailsScreenState
     );
   }
 
-  Widget _buildMessageItem(Message message) {
+  Widget _buildMessageItem(Message message, {bool isAdmin = false}) {
     return Container(
       margin: EdgeInsets.only(bottom: 16),
       child: Column(
-        crossAxisAlignment: message.senderId == 'admin'
-            ? CrossAxisAlignment.end
-            : CrossAxisAlignment.start,
+        crossAxisAlignment:
+            isAdmin ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           Container(
             padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color:
-                  message.senderId == 'admin' ? Colors.blue : Colors.grey[800],
+              color: isAdmin ? Colors.blue : Colors.grey[800],
               borderRadius: BorderRadius.circular(16),
             ),
             child: Text(message.content, style: TextStyle(color: Colors.white)),

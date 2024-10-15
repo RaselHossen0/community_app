@@ -12,12 +12,16 @@ class Chat extends ConsumerStatefulWidget {
   final String name;
   final String subtitle;
   final String communityId;
+  final bool isAdmin;
+  final String adminId;
 
   const Chat({
     Key? key,
     required this.name,
     required this.subtitle,
+    required this.isAdmin,
     required this.communityId,
+    required this.adminId,
   }) : super(key: key);
 
   @override
@@ -34,14 +38,14 @@ class _ChatState extends ConsumerState<Chat> {
   }
 
   void _sendMessage() async {
+    print('Sending message');
+    print(widget.isAdmin);
     final user = ref.read(userProvider.notifier).getUser();
-    if (user != null &&
-        user.role == 'admin' &&
-        _messageController.text.isNotEmpty) {
+    if (widget.isAdmin && _messageController.text.isNotEmpty) {
       final message = Message(
         id: '',
         communityId: widget.communityId,
-        senderId: user.uid,
+        senderId: user!.uid,
         type: 'text',
         content: _messageController.text,
         timestamp: Timestamp.now(),
@@ -84,6 +88,7 @@ class _ChatState extends ConsumerState<Chat> {
                 MaterialPageRoute(
                   builder: (context) => InfoScreen(
                     communityId: widget.communityId,
+                    adminId: widget.adminId,
                   ),
                 ),
               );
@@ -203,18 +208,18 @@ class _ChatState extends ConsumerState<Chat> {
               style: TextStyle(color: Colors.white),
             ),
           ),
-          IconButton(
-            icon: Icon(Icons.sentiment_satisfied, color: Colors.grey),
-            onPressed: () {
-              // Add emoji picker functionality
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.attach_file, color: Colors.grey),
-            onPressed: () {
-              // Add file attachment functionality
-            },
-          ),
+          // IconButton(
+          //   icon: Icon(Icons.sentiment_satisfied, color: Colors.grey),
+          //   onPressed: () {
+          //     // Add emoji picker functionality
+          //   },
+          // ),
+          // IconButton(
+          //   icon: Icon(Icons.attach_file, color: Colors.grey),
+          //   onPressed: () {
+          //     // Add file attachment functionality
+          //   },
+          // ),
           IconButton(
             icon: Icon(Icons.send, color: Colors.blue),
             onPressed: _sendMessage,

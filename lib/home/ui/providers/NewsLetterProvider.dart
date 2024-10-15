@@ -17,6 +17,7 @@ class NewsletterNotifier extends StateNotifier<bool> {
         .collection('newsletter_subscriptions')
         .doc(user.uid)
         .get();
+    print(doc.exists);
     state = doc.exists;
   }
 
