@@ -56,10 +56,13 @@ class UserNotifier extends StateNotifier<User?> {
           state = User.fromDocument(docSnapshot
               .data()!); // Assuming your User model has a fromJson() method
         }
+      } else {
+        state = null;
       }
     } catch (e) {
       // Handle errors if needed
       print('Error loading user from Firestore: $e');
+      state = null;
     }
   }
 }

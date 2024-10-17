@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../auth/provider/UserState.dart';
-import '../../../newsletter/NewsLetter.dart';
-import '../providers/NewsLetterProvider.dart';
+import '../../../newsletter/controller/NewsLetterProvider.dart';
+import '../../../newsletter/ui/NewsLetter.dart';
 
 final newslettersProvider = StreamProvider<List<Newsletter>>((ref) {
   return FirebaseFirestore.instance

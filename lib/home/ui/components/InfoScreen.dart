@@ -7,8 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/data/UserService.dart';
 import '../../../auth/models/User.dart';
 import '../../../auth/provider/UserState.dart';
-import '../providers/CommunityState.dart';
-import 'CommunityMembersScreen.dart';
+import '../../../community/controller/CommunityState.dart';
+import '../../../community/ui/CommunityMembersScreen.dart';
 
 class InfoScreen extends ConsumerWidget {
   final String communityId;

@@ -8,10 +8,11 @@ import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-import '../../../auth/provider/UserState.dart';
-import '../model/NewsModel.dart';
-import '../providers/NewsProvider.dart';
-import 'Newsdetails.dart'; // Make sure this import points to the correct location of your NewsDetails widget
+import '../../auth/provider/UserState.dart';
+import '../../home/model/NewsModel.dart';
+// Make sure this import points to the correct location of your NewsDetails widget
+import '../controller/NewsProvider.dart';
+import 'NewsDetails.dart';
 
 class NewsPage extends ConsumerStatefulWidget {
   @override

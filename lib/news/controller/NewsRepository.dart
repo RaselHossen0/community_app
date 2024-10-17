@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../model/NewsModel.dart';
+import '../../home/model/NewsModel.dart';
 
 class NewsRepository {
   final FirebaseFirestore _firestore;

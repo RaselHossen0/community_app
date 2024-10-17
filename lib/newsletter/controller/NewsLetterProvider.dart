@@ -2,7 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../auth/models/User.dart';
+import '../../auth/models/User.dart';
 
 final newsletterProvider =
     StateNotifierProvider<NewsletterNotifier, bool>((ref) {

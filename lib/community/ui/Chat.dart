@@ -4,9 +4,9 @@ import 'package:community_app/auth/provider/UserState.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../chat/controller/MessageController.dart';
-import '../chat/model/MessageModel.dart';
-import 'InfoScreen.dart';
+import '../../home/ui/components/InfoScreen.dart';
+import '../controller/MessageController.dart';
+import '../model/MessageModel.dart';
 
 class Chat extends ConsumerStatefulWidget {
   final String name;

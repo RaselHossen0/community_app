@@ -9,7 +9,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../providers/CommunityState.dart';
+import '../controller/CommunityState.dart';
 import 'Chat.dart';
 import 'CommunityDetailsScreen.dart';
 

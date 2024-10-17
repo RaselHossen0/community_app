@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/ThemeNotifier.dart';
 import 'firebase_options.dart';
-import 'newsletter/NewsLetter.dart';
+import 'newsletter/ui/NewsLetter.dart';
 
 Future<void> insertSampleNewsData() async {
   final firestore = FirebaseFirestore.instance;

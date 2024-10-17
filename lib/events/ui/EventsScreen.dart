@@ -5,9 +5,9 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../../auth/provider/UserState.dart';
-import '../model/EventModel.dart';
-import '../providers/EventNotifier.dart';
+import '../../auth/provider/UserState.dart';
+import '../../home/model/EventModel.dart';
+import '../controller/EventNotifier.dart';
 import 'EventDetails.dart';
 
 class EventsScreen extends ConsumerStatefulWidget {

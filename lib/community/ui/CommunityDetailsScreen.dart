@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../auth/provider/UserState.dart';
-import '../chat/controller/MessageController.dart';
-import '../chat/model/MessageModel.dart';
-import 'InfoScreen.dart';
+import '../../../../auth/provider/UserState.dart';
+import '../../home/ui/components/InfoScreen.dart';
+import '../controller/MessageController.dart';
+import '../model/MessageModel.dart';
 
 class CommunityDetailsScreen extends ConsumerStatefulWidget {
   final String name;

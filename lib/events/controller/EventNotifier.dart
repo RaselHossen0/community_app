@@ -2,7 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../model/EventModel.dart';
+import '../../home/model/EventModel.dart';
 
 class EventNotifier extends StateNotifier<List<Event>> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
